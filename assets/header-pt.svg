@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+  width="864" height="250" viewBox="0 0 864 250"
+  role="img" aria-labelledby="title-pt desc-pt">
+
+  <title id="title-pt">Header em português de Marcos Salles</title>
+  <desc id="desc-pt">Banner profissional de Marcos Salles como Desenvolvedor Full Stack.</desc>
+
+  <defs>
+    <linearGradient id="bg-pt" x1="18" y1="18" x2="846" y2="232" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#09111E"/>
+      <stop offset="70%" stop-color="#0B111B"/>
+      <stop offset="100%" stop-color="#1B0C12"/>
+    </linearGradient>
+
+    <linearGradient id="redGlow-pt" x1="560" y1="70" x2="846" y2="210" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FF4D4D" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#FF4D4D" stop-opacity="0.14"/>
+    </linearGradient>
+
+    <pattern id="grid-pt" width="22" height="22" patternUnits="userSpaceOnUse">
+      <path d="M22 0H0V22" fill="none" stroke="#1B2534" stroke-width="1"/>
+    </pattern>
+
+    <filter id="dotGlow-pt" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="2.4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="864" height="250" fill="#040A15"/>
+  <rect x="18" y="18" width="828" height="214" rx="18" fill="url(#bg-pt)"/>
+  <rect x="18" y="18" width="828" height="214" rx="18" fill="url(#grid-pt)" opacity="0.18"/>
+  <rect x="18" y="18" width="828" height="214" rx="18" fill="url(#redGlow-pt)"/>
+  <rect x="18.75" y="18.75" width="826.5" height="212.5" rx="17.25"
+        fill="none" stroke="#1D2838" stroke-width="1.5"/>
+
+  <!-- Left text block: no left red bar and no underline -->
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+    <text x="52" y="91"
+          fill="#9DAAC0"
+          font-size="13.5"
+          font-weight="600"
+          letter-spacing="4.1">DESENVOLVIMENTO DE SOFTWARE</text>
+
+    <text x="50" y="148"
+          fill="#F4F7FB"
+          font-size="58"
+          font-weight="800"
+          letter-spacing="-1.2">Marcos Salles</text>
+
+    <text x="52" y="190"
+          fill="#F4F7FB"
+          font-size="21"
+          font-weight="700">Desenvolvedor Full Stack</text>
+
+    <text x="52" y="216"
+          fill="#9EADC3"
+          font-size="15">Web • APIs • Bancos de dados • Geoespacial • Automação</text>
+  </g>
+
+  <!-- Network -->
+  <g>
+    <g fill="none" stroke="#A12D3A" stroke-width="1.15" opacity="0.46">
+      <line x1="592" y1="58" x2="658" y2="91"/>
+      <line x1="658" y1="91" x2="727" y2="60"/>
+      <line x1="727" y1="60" x2="801" y2="99"/>
+      <line x1="592" y1="58" x2="604" y2="137"/>
+      <line x1="604" y1="137" x2="658" y2="91"/>
+      <line x1="658" y1="91" x2="650" y2="161"/>
+      <line x1="727" y1="60" x2="773" y2="151"/>
+      <line x1="658" y1="91" x2="773" y2="151"/>
+      <line x1="604" y1="137" x2="650" y2="161"/>
+      <line x1="650" y1="161" x2="773" y2="151"/>
+      <line x1="801" y1="99" x2="773" y2="151"/>
+      <line x1="650" y1="161" x2="727" y2="60"/>
+      <line x1="604" y1="137" x2="801" y2="99"/>
+    </g>
+
+    <g fill="#FF5B5B" filter="url(#dotGlow-pt)">
+      <circle cx="592" cy="58" r="4.2">
+        <animate attributeName="opacity" values="0.35;1;0.5;1;0.35" dur="2.7s" begin="0s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="4.0;4.8;4.1;4.6;4.0" dur="2.7s" begin="0s" repeatCount="indefinite"/>
+      </circle>
+
+      <circle cx="658" cy="91" r="4.6">
+        <animate attributeName="opacity" values="0.5;1;0.35;1;0.5" dur="3.1s" begin="0.25s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="4.3;5.2;4.2;4.9;4.3" dur="3.1s" begin="0.25s" repeatCount="indefinite"/>
+      </circle>
+
+      <circle cx="727" cy="60" r="4.2">
+        <animate attributeName="opacity" values="0.4;1;0.55;1;0.4" dur="2.6s" begin="0.65s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="4.0;4.8;4.0;4.6;4.0" dur="2.6s" begin="0.65s" repeatCount="indefinite"/>
+      </circle>
+
+      <circle cx="801" cy="99" r="4.2">
+        <animate attributeName="opacity" values="0.45;1;0.35;1;0.45" dur="3s" begin="1.05s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="4.0;4.7;4.1;4.6;4.0" dur="3s" begin="1.05s" repeatCount="indefinite"/>
+      </circle>
+
+      <circle cx="604" cy="137" r="4.2">
+        <animate attributeName="opacity" values="0.55;1;0.4;1;0.55" dur="2.8s" begin="0.9s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="4.0;4.8;4.0;4.6;4.0" dur="2.8s" begin="0.9s" repeatCount="indefinite"/>
+      </circle>
+
+      <circle cx="650" cy="161" r="4.6">
+        <animate attributeName="opacity" values="0.35;1;0.5;1;0.35" dur="3.2s" begin="0.4s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="4.3;5.1;4.3;5.0;4.3" dur="3.2s" begin="0.4s" repeatCount="indefinite"/>
+      </circle>
+
+      <circle cx="773" cy="151" r="4.2">
+        <animate attributeName="opacity" values="0.5;1;0.35;1;0.5" dur="2.9s" begin="1.35s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="4.0;4.7;4.1;4.6;4.0" dur="2.9s" begin="1.35s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+  </g>
+
+  <!-- Code/data label: below the network with clear spacing -->
+  <text x="697" y="198"
+        text-anchor="middle"
+        font-family="Consolas, 'Courier New', monospace"
+        font-size="14.2"
+        font-weight="600">
+    <tspan fill="#F3F6FB">&lt; </tspan>
+    <tspan fill="#FF7B72">código</tspan>
+    <tspan fill="#F3F6FB"> + </tspan>
+    <tspan fill="#FF7B72">dados</tspan>
+    <tspan fill="#F3F6FB"> /&gt;</tspan>
+  </text>
+</svg>

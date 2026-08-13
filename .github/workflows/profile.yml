@@ -1,0 +1,989 @@
+name: Update GitHub Profile
+
+on:
+  schedule:
+    # Odd-numbered days at 06:20 UTC (currently 03:20 in Sao Paulo).
+    - cron: "20 6 1-31/2 * *"
+
+  workflow_dispatch:
+
+  push:
+    paths:
+      - ".github/workflows/profile.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-github-profile
+  cancel-in-progress: false
+
+jobs:
+  update-profile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Create profile directory
+        run: mkdir -p profile
+
+      - name: Generate red contribution snake
+        uses: Platane/snk/svg-only@d8f6715049803e982ee5ff501b6b9b7d5deeb09b # v3
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            profile/contribution-snake.svg?color_snake=#d32f2f&color_dots=#ebedf0,#ffd7dc,#ffadb7,#ff7c8d,#d32f2f
+            profile/contribution-snake-dark.svg?palette=github-dark&color_snake=#ff4d4d&color_dots=#161b22,#3d161a,#6d1f28,#a72b38,#ff4d4d
+
+      - name: Generate streak in Portuguese
+        uses: DenverCoder1/github-readme-streak-stats@f69662e10794e8757b12d3303a113a30b01c9bc9
+        with:
+          options: user=${{ github.repository_owner }}&locale=pt_BR&timezone=America/Sao_Paulo&hide_border=true&hide_total_contributions=true&background=0D1117&stroke=30363D&ring=ff4d4d&fire=ff6b6b&currStreakNum=f0f6fc&sideNums=f0f6fc&currStreakLabel=ff7b72&sideLabels=8b949e&dates=8b949e
+          path: profile/streak-pt.svg
+          token: ${{ secrets.STREAK_STATS_TOKEN || github.token }}
+
+      - name: Generate streak in English
+        uses: DenverCoder1/github-readme-streak-stats@f69662e10794e8757b12d3303a113a30b01c9bc9
+        with:
+          options: user=${{ github.repository_owner }}&locale=en&timezone=America/Sao_Paulo&hide_border=true&hide_total_contributions=true&background=0D1117&stroke=30363D&ring=ff4d4d&fire=ff6b6b&currStreakNum=f0f6fc&sideNums=f0f6fc&currStreakLabel=ff7b72&sideLabels=8b949e&dates=8b949e
+          path: profile/streak-en.svg
+          token: ${{ secrets.STREAK_STATS_TOKEN || github.token }}
+
+      - name: Generate public and private stats
+        shell: python
+        env:
+          PROFILE_STATS_TOKEN: ${{ secrets.PROFILE_STATS_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+        run: |
+          import html
+          import json
+          import os
+          import urllib.parse
+          import urllib.request
+          from pathlib import Path
+
+          username = os.environ["USERNAME"]
+          token = os.environ.get(
+              "PROFILE_STATS_TOKEN",
+              "",
+          ).strip()
+
+          if not token:
+              raise RuntimeError(
+                  "PROFILE_STATS_TOKEN is required to read "
+                  "personal public and private repositories."
+              )
+
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "User-Agent": "MarcosDayss-profile-stats",
+          }
+
+          def github_get(url):
+              request = urllib.request.Request(
+                  url,
+                  headers=headers,
+              )
+
+              with urllib.request.urlopen(request) as response:
+                  return json.load(response)
+
+          viewer = github_get("https://api.github.com/user")
+
+          if viewer.get("login", "").casefold() != username.casefold():
+              raise RuntimeError(
+                  "PROFILE_STATS_TOKEN must belong to the "
+                  "repository owner."
+              )
+
+          # --------------------------------------------------------
+          # Get every repository OWNED by MarcosDayss.
+          #
+          # This includes:
+          # - public personal repositories
+          # - private personal repositories
+          #
+          # This does NOT include organization repositories.
+          # --------------------------------------------------------
+
+          repos = []
+          page = 1
+
+          while True:
+              url = (
+                  "https://api.github.com/user/repos"
+                  "?visibility=all"
+                  "&affiliation=owner"
+                  "&sort=updated"
+                  "&per_page=100"
+                  f"&page={page}"
+              )
+
+              batch = github_get(url)
+
+              if not batch:
+                  break
+
+              repos.extend(batch)
+
+              if len(batch) < 100:
+                  break
+
+              page += 1
+
+          total_commits = 0
+          public_repos = 0
+          private_repos = 0
+          total_stars = 0
+          contributed_repos = 0
+
+          # --------------------------------------------------------
+          # Count commits authored by the GitHub user.
+          # --------------------------------------------------------
+
+          for repo in repos:
+              if repo.get("fork"):
+                  continue
+
+              full_name = repo["full_name"]
+
+              if repo.get("private"):
+                  private_repos += 1
+              else:
+                  public_repos += 1
+
+              total_stars += int(
+                  repo.get("stargazers_count", 0)
+              )
+
+              repo_commits = 0
+              commit_page = 1
+
+              while True:
+                  params = urllib.parse.urlencode({
+                      "author": username,
+                      "per_page": 100,
+                      "page": commit_page,
+                  })
+
+                  url = (
+                      f"https://api.github.com/repos/"
+                      f"{full_name}/commits?{params}"
+                  )
+
+                  try:
+                      commits = github_get(url)
+
+                  except Exception as error:
+                      if repo.get("private"):
+                          print(
+                              "Could not read commits from a "
+                              "private repository "
+                              f"({type(error).__name__})"
+                          )
+                      else:
+                          print(
+                              f"Could not read commits from "
+                              f"{full_name}: {error}"
+                          )
+
+                      break
+
+                  if not commits:
+                      break
+
+                  amount = len(commits)
+
+                  repo_commits += amount
+                  total_commits += amount
+
+                  if amount < 100:
+                      break
+
+                  commit_page += 1
+
+              if repo_commits > 0:
+                  contributed_repos += 1
+
+              if repo.get("private"):
+                  print("PRIVATE repository processed")
+              else:
+                  print(
+                      f"PUBLIC  {full_name}: "
+                      f"{repo_commits} commits"
+                  )
+
+          # --------------------------------------------------------
+          # Custom SVG
+          # --------------------------------------------------------
+
+          WIDTH = 520
+          HEIGHT = 360
+
+          svg = f'''<svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="{WIDTH}"
+            height="{HEIGHT}"
+            viewBox="0 0 {WIDTH} {HEIGHT}"
+            role="img"
+            aria-label="GitHub Stats"
+          >
+
+            <style>
+              text {{
+                font-family:
+                  -apple-system,
+                  BlinkMacSystemFont,
+                  'Segoe UI',
+                  Helvetica,
+                  Arial,
+                  sans-serif;
+              }}
+
+              .title {{
+                fill: #ff7b72;
+                font-size: 23px;
+                font-weight: 700;
+              }}
+
+              .label {{
+                fill: #c9d1d9;
+                font-size: 15px;
+                font-weight: 500;
+              }}
+
+              .value {{
+                fill: #f0f6fc;
+                font-size: 17px;
+                font-weight: 700;
+              }}
+
+              .muted {{
+                fill: #8b949e;
+                font-size: 11px;
+              }}
+
+              .icon {{
+                fill: #ff4d4d;
+                font-size: 17px;
+                font-weight: 700;
+              }}
+            </style>
+
+            <rect
+              x="1"
+              y="1"
+              width="{WIDTH - 2}"
+              height="{HEIGHT - 2}"
+              rx="10"
+              fill="#0d1117"
+              stroke="#30363d"
+              stroke-width="1"
+            />
+
+            <text
+              x="28"
+              y="42"
+              class="title"
+            >Stats</text>
+
+            <line
+              x1="28"
+              y1="62"
+              x2="{WIDTH - 28}"
+              y2="62"
+              stroke="#21262d"
+              stroke-width="1"
+            />
+
+            <!-- Total commits -->
+
+            <text
+              x="30"
+              y="104"
+              class="icon"
+            >●</text>
+
+            <text
+              x="58"
+              y="104"
+              class="label"
+            >Total Commits</text>
+
+            <text
+              x="470"
+              y="104"
+              text-anchor="end"
+              class="value"
+            >{total_commits}</text>
+
+            <!-- Public repositories -->
+
+            <text
+              x="30"
+              y="148"
+              class="icon"
+            >□</text>
+
+            <text
+              x="58"
+              y="148"
+              class="label"
+            >Public Repos</text>
+
+            <text
+              x="470"
+              y="148"
+              text-anchor="end"
+              class="value"
+            >{public_repos}</text>
+
+            <!-- Private repositories -->
+
+            <text
+              x="30"
+              y="192"
+              class="icon"
+            >◆</text>
+
+            <text
+              x="58"
+              y="192"
+              class="label"
+            >Private Repos</text>
+
+            <text
+              x="470"
+              y="192"
+              text-anchor="end"
+              class="value"
+            >{private_repos}</text>
+
+            <!-- Repositories contributed to -->
+
+            <text
+              x="30"
+              y="236"
+              class="icon"
+            >◇</text>
+
+            <text
+              x="58"
+              y="236"
+              class="label"
+            >Contributed to</text>
+
+            <text
+              x="470"
+              y="236"
+              text-anchor="end"
+              class="value"
+            >{contributed_repos}</text>
+
+            <!-- Stars -->
+
+            <text
+              x="30"
+              y="280"
+              class="icon"
+            >★</text>
+
+            <text
+              x="58"
+              y="280"
+              class="label"
+            >Total Stars</text>
+
+            <text
+              x="470"
+              y="280"
+              text-anchor="end"
+              class="value"
+            >{total_stars}</text>
+
+            <line
+              x1="28"
+              y1="305"
+              x2="{WIDTH - 28}"
+              y2="305"
+              stroke="#21262d"
+              stroke-width="1"
+            />
+
+            <text
+              x="28"
+              y="330"
+              class="muted"
+            >Personal public + private repositories</text>
+
+          </svg>'''
+
+          pt_replacements = {
+              'aria-label="GitHub Stats"':
+                  'aria-label="Estatísticas do GitHub"',
+              '>Stats</text>':
+                  '>Estatísticas</text>',
+              '>Total Commits</text>':
+                  '>Total de commits</text>',
+              '>Public Repos</text>':
+                  '>Repositórios públicos</text>',
+              '>Private Repos</text>':
+                  '>Repositórios privados</text>',
+              '>Contributed to</text>':
+                  '>Contribuiu em</text>',
+              '>Total Stars</text>':
+                  '>Total de estrelas</text>',
+              '>Personal public + private repositories</text>':
+                  '>Repositórios pessoais públicos + privados</text>',
+          }
+
+          svg_pt = svg
+
+          for source, translation in pt_replacements.items():
+              svg_pt = svg_pt.replace(
+                  source,
+                  translation,
+              )
+
+          cards = {
+              "profile/stats-en.svg": svg,
+              "profile/stats-pt.svg": svg_pt,
+          }
+
+          for path, contents in cards.items():
+              Path(path).write_text(
+                  contents,
+                  encoding="utf-8",
+              )
+
+              print(f"Generated {path}")
+
+          print()
+          print("========== PROFILE STATS ==========")
+          print(f"Public repos:       {public_repos}")
+          print(f"Private repos:      {private_repos}")
+          print(f"Total commits:      {total_commits}")
+          print(f"Contributed repos:  {contributed_repos}")
+          print(f"Total stars:        {total_stars}")
+          print("===================================")
+
+      - name: Generate animated languages card
+        shell: python
+        env:
+          PROFILE_STATS_TOKEN: ${{ secrets.PROFILE_STATS_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+        run: |
+          import html
+          import json
+          import os
+          import urllib.request
+
+          from collections import defaultdict
+          from pathlib import Path
+
+          username = os.environ["USERNAME"]
+          token = os.environ.get(
+              "PROFILE_STATS_TOKEN",
+              "",
+          ).strip()
+
+          if not token:
+              raise RuntimeError(
+                  "PROFILE_STATS_TOKEN is required to read "
+                  "personal public and private repositories."
+              )
+
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "User-Agent": "MarcosDayss-profile-languages",
+          }
+
+          def github_get(url):
+              request = urllib.request.Request(
+                  url,
+                  headers=headers,
+              )
+
+              with urllib.request.urlopen(request) as response:
+                  return json.load(response)
+
+          viewer = github_get("https://api.github.com/user")
+
+          if viewer.get("login", "").casefold() != username.casefold():
+              raise RuntimeError(
+                  "PROFILE_STATS_TOKEN must belong to the "
+                  "repository owner."
+              )
+
+          # --------------------------------------------------------
+          # Public + private repositories owned by the account.
+          # Organization repositories are not included.
+          # --------------------------------------------------------
+
+          repos = []
+          page = 1
+
+          while True:
+              url = (
+                  "https://api.github.com/user/repos"
+                  "?visibility=all"
+                  "&affiliation=owner"
+                  "&sort=updated"
+                  "&per_page=100"
+                  f"&page={page}"
+              )
+
+              batch = github_get(url)
+
+              if not batch:
+                  break
+
+              repos.extend(batch)
+
+              if len(batch) < 100:
+                  break
+
+              page += 1
+
+          languages = defaultdict(int)
+
+          for repo in repos:
+              if repo.get("fork"):
+                  continue
+
+              language_url = repo.get(
+                  "languages_url"
+              )
+
+              if not language_url:
+                  continue
+
+              try:
+                  repo_languages = github_get(
+                      language_url
+                  )
+
+              except Exception as error:
+                  if repo.get("private"):
+                      print(
+                          "Could not read languages for a "
+                          "private repository "
+                          f"({type(error).__name__})"
+                      )
+                  else:
+                      print(
+                          f"Could not read languages "
+                          f"for {repo.get('name')}: "
+                          f"{error}"
+                      )
+
+                  continue
+
+              for language, amount in repo_languages.items():
+                  languages[language] += int(amount)
+
+          if not languages:
+              languages = {
+                  "Vue": 1,
+                  "Java": 1,
+                  "JavaScript": 1,
+              }
+
+          total = sum(
+              languages.values()
+          )
+
+          ranking = sorted(
+              languages.items(),
+              key=lambda item: item[1],
+              reverse=True,
+          )[:6]
+
+          WIDTH = 520
+          HEADER_HEIGHT = 86
+          ROW_HEIGHT = 42
+          FOOTER = 22
+
+          HEIGHT = (
+              HEADER_HEIGHT
+              + ROW_HEIGHT * len(ranking)
+              + FOOTER
+          )
+
+          BAR_X = 175
+          BAR_WIDTH = 250
+
+          palette = {
+              "Vue": "#ff4d4d",
+              "Vue.js": "#ff4d4d",
+              "Java": "#ff7b72",
+              "TypeScript": "#c44550",
+              "JavaScript": "#a72b38",
+              "C#": "#81212b",
+              "C++": "#6b1b24",
+              "PHP": "#5c1820",
+              "Go": "#91303a",
+          }
+
+          fallback_palette = [
+              "#ff4d4d",
+              "#e34850",
+              "#c83c46",
+              "#aa303b",
+              "#8d2631",
+              "#70202a",
+          ]
+
+          def color_for(language, index):
+              return palette.get(
+                  language,
+                  fallback_palette[
+                      index % len(fallback_palette)
+                  ],
+              )
+
+          rows = []
+
+          for index, (
+              language,
+              amount,
+          ) in enumerate(ranking):
+
+              percentage = (
+                  amount / total * 100
+                  if total
+                  else 0
+              )
+
+              target_width = max(
+                  3,
+                  BAR_WIDTH
+                  * percentage
+                  / 100,
+              )
+
+              y = (
+                  HEADER_HEIGHT
+                  + index * ROW_HEIGHT
+              )
+
+              color = color_for(
+                  language,
+                  index,
+              )
+
+              number = f"{index + 1:02d}"
+
+              escaped_language = html.escape(
+                  language
+              )
+
+              rows.append(
+                  f'''
+                  <g class="language-row">
+
+                    <text
+                      x="28"
+                      y="{y + 24}"
+                      class="position"
+                    >{number}</text>
+
+                    <text
+                      x="62"
+                      y="{y + 24}"
+                      class="language"
+                    >{escaped_language}</text>
+
+                    <rect
+                      x="{BAR_X}"
+                      y="{y + 10}"
+                      width="{BAR_WIDTH}"
+                      height="16"
+                      rx="8"
+                      fill="#161b22"
+                    />
+
+                    <rect
+                      x="{BAR_X}"
+                      y="{y + 10}"
+                      width="0"
+                      height="16"
+                      rx="8"
+                      fill="{color}"
+                    >
+                      <animate
+                        attributeName="width"
+                        from="0"
+                        to="{target_width:.2f}"
+                        dur="0.8s"
+                        begin="{index * 0.12:.2f}s"
+                        fill="freeze"
+                        calcMode="spline"
+                        keySplines="0.16 1 0.3 1"
+                      />
+                    </rect>
+
+                    <text
+                      x="494"
+                      y="{y + 24}"
+                      text-anchor="end"
+                      class="percentage"
+                    >{percentage:.1f}%</text>
+
+                  </g>
+                  '''
+              )
+
+          svg = f'''<svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="{WIDTH}"
+            height="{HEIGHT}"
+            viewBox="0 0 {WIDTH} {HEIGHT}"
+            role="img"
+            aria-label="Languages"
+          >
+
+            <style>
+
+              text {{
+                font-family:
+                  -apple-system,
+                  BlinkMacSystemFont,
+                  'Segoe UI',
+                  Helvetica,
+                  Arial,
+                  sans-serif;
+              }}
+
+              .title {{
+                fill: #ff7b72;
+                font-size: 21px;
+                font-weight: 700;
+              }}
+
+              .subtitle {{
+                fill: #8b949e;
+                font-size: 11px;
+                font-weight: 500;
+              }}
+
+              .position {{
+                fill: #6e7681;
+                font-size: 11px;
+                font-weight: 700;
+              }}
+
+              .language {{
+                fill: #f0f6fc;
+                font-size: 13px;
+                font-weight: 650;
+              }}
+
+              .percentage {{
+                fill: #8b949e;
+                font-size: 12px;
+                font-weight: 600;
+              }}
+
+            </style>
+
+            <rect
+              x="1"
+              y="1"
+              width="{WIDTH - 2}"
+              height="{HEIGHT - 2}"
+              rx="10"
+              fill="#0d1117"
+              stroke="#30363d"
+              stroke-width="1"
+            />
+
+            <text
+              x="24"
+              y="34"
+              class="title"
+            >Stack activity</text>
+
+            <text
+              x="24"
+              y="56"
+              class="subtitle"
+            >Personal public + private repositories</text>
+
+            <line
+              x1="24"
+              y1="70"
+              x2="{WIDTH - 24}"
+              y2="70"
+              stroke="#21262d"
+              stroke-width="1"
+            />
+
+            {''.join(rows)}
+
+          </svg>
+          '''
+
+          pt_replacements = {
+              'aria-label="Languages"':
+                  'aria-label="Linguagens"',
+              '>Stack activity</text>':
+                  '>Atividade da stack</text>',
+              '>Personal public + private repositories</text>':
+                  '>Repositórios pessoais públicos + privados</text>',
+          }
+
+          svg_pt = svg
+
+          for source, translation in pt_replacements.items():
+              svg_pt = svg_pt.replace(
+                  source,
+                  translation,
+              )
+
+          cards = {
+              "profile/languages-en.svg": svg,
+              "profile/languages-pt.svg": svg_pt,
+          }
+
+          for path, contents in cards.items():
+              Path(path).write_text(
+                  contents,
+                  encoding="utf-8",
+              )
+
+              print(f"Generated {path}")
+
+          print("Ranking:")
+
+          for language, amount in ranking:
+              percentage = (
+                  amount / total * 100
+              )
+
+              print(
+                  f"  {language}: "
+                  f"{percentage:.2f}%"
+              )
+
+      - name: Apply typography and card borders
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          # The stats and languages cards are not listed because
+          # they are generated with their final design.
+
+          files = [
+              Path("profile/streak-pt.svg"),
+              Path("profile/streak-en.svg"),
+              Path("profile/contribution-snake.svg"),
+              Path("profile/contribution-snake-dark.svg"),
+          ]
+
+          font_css = (
+              "<style id=\"profile-font-override\">"
+              "text,tspan{"
+              "font-family:"
+              "-apple-system,"
+              "BlinkMacSystemFont,"
+              "'Segoe UI',"
+              "Helvetica,"
+              "Arial,"
+              "sans-serif!important;"
+              "letter-spacing:-0.15px;"
+              "}"
+              "</style>"
+          )
+
+          for path in files:
+              if not path.exists():
+                  continue
+
+              svg = path.read_text(
+                  encoding="utf-8"
+              )
+
+              if "profile-font-override" not in svg:
+                  svg = re.sub(
+                      r"(<svg\b[^>]*>)",
+                      lambda match:
+                          match.group(1)
+                          + font_css,
+                      svg,
+                      count=1,
+                  )
+
+              if "profile-card-border" not in svg:
+                  root = re.search(
+                      r"<svg\b([^>]*)>",
+                      svg,
+                  )
+
+                  if root:
+                      attrs = root.group(1)
+
+                      viewbox = re.search(
+                          r'viewBox=["\']'
+                          r'\s*([-\d.]+)'
+                          r'\s+([-\d.]+)'
+                          r'\s+([-\d.]+)'
+                          r'\s+([-\d.]+)'
+                          r'\s*["\']',
+                          attrs,
+                          re.I,
+                      )
+
+                      if viewbox:
+                          x, y, width, height = map(
+                              float,
+                              viewbox.groups(),
+                          )
+
+                          border = (
+                              '<rect '
+                              'id="profile-card-border" '
+                              f'x="{x + 1:g}" '
+                              f'y="{y + 1:g}" '
+                              f'width="{max(width - 2, 0):g}" '
+                              f'height="{max(height - 2, 0):g}" '
+                              'rx="10" '
+                              'ry="10" '
+                              'fill="none" '
+                              'stroke="#30363d" '
+                              'stroke-width="1"/>'
+                          )
+
+                          svg = re.sub(
+                              r"(<svg\b[^>]*>)",
+                              lambda match:
+                                  match.group(1)
+                                  + border,
+                              svg,
+                              count=1,
+                          )
+
+              path.write_text(
+                  svg,
+                  encoding="utf-8",
+              )
+
+      - name: Commit generated files
+        run: |
+          git config user.name "MarcosDayss"
+          git config user.email "dev.salles7@gmail.com"
+
+          git add profile
+
+          git diff --cached --quiet && exit 0
+
+          git commit -m "Profile update: $(TZ='America/Sao_Paulo' date +'%Y-%m-%d %H:%M:%S')"
+
+          git push

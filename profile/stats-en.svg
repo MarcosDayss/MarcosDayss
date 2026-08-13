@@ -1,0 +1,197 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="520"
+  height="360"
+  viewBox="0 0 520 360"
+  role="img"
+  aria-label="GitHub Stats"
+>
+
+  <style>
+    text {
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Helvetica,
+        Arial,
+        sans-serif;
+    }
+
+    .title {
+      fill: #ff7b72;
+      font-size: 23px;
+      font-weight: 700;
+    }
+
+    .label {
+      fill: #c9d1d9;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .value {
+      fill: #f0f6fc;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .muted {
+      fill: #8b949e;
+      font-size: 11px;
+    }
+
+    .icon {
+      fill: #ff4d4d;
+      font-size: 17px;
+      font-weight: 700;
+    }
+  </style>
+
+  <rect
+    x="1"
+    y="1"
+    width="518"
+    height="358"
+    rx="10"
+    fill="#0d1117"
+    stroke="#30363d"
+    stroke-width="1"
+  />
+
+  <text
+    x="28"
+    y="42"
+    class="title"
+  >Stats</text>
+
+  <line
+    x1="28"
+    y1="62"
+    x2="492"
+    y2="62"
+    stroke="#21262d"
+    stroke-width="1"
+  />
+
+  <!-- Total commits -->
+
+  <text
+    x="30"
+    y="104"
+    class="icon"
+  >●</text>
+
+  <text
+    x="58"
+    y="104"
+    class="label"
+  >Total Commits</text>
+
+  <text
+    x="470"
+    y="104"
+    text-anchor="end"
+    class="value"
+  >140</text>
+
+  <!-- Public repositories -->
+
+  <text
+    x="30"
+    y="148"
+    class="icon"
+  >□</text>
+
+  <text
+    x="58"
+    y="148"
+    class="label"
+  >Public Repos</text>
+
+  <text
+    x="470"
+    y="148"
+    text-anchor="end"
+    class="value"
+  >4</text>
+
+  <!-- Private repositories -->
+
+  <text
+    x="30"
+    y="192"
+    class="icon"
+  >◆</text>
+
+  <text
+    x="58"
+    y="192"
+    class="label"
+  >Private Repos</text>
+
+  <text
+    x="470"
+    y="192"
+    text-anchor="end"
+    class="value"
+  >4</text>
+
+  <!-- Repositories contributed to -->
+
+  <text
+    x="30"
+    y="236"
+    class="icon"
+  >◇</text>
+
+  <text
+    x="58"
+    y="236"
+    class="label"
+  >Contributed to</text>
+
+  <text
+    x="470"
+    y="236"
+    text-anchor="end"
+    class="value"
+  >8</text>
+
+  <!-- Stars -->
+
+  <text
+    x="30"
+    y="280"
+    class="icon"
+  >★</text>
+
+  <text
+    x="58"
+    y="280"
+    class="label"
+  >Total Stars</text>
+
+  <text
+    x="470"
+    y="280"
+    text-anchor="end"
+    class="value"
+  >0</text>
+
+  <line
+    x1="28"
+    y1="305"
+    x2="492"
+    y2="305"
+    stroke="#21262d"
+    stroke-width="1"
+  />
+
+  <text
+    x="28"
+    y="330"
+    class="muted"
+  >Personal public + private repositories</text>
+
+</svg>
