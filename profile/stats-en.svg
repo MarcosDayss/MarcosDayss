@@ -93,7 +93,7 @@
     y="104"
     text-anchor="end"
     class="value"
-  >39</text>
+  >38</text>
 
   <!-- Public repositories -->
 
@@ -114,7 +114,7 @@
     y="148"
     text-anchor="end"
     class="value"
-  >4</text>
+  >2</text>
 
   <!-- Private repositories -->
 
@@ -135,7 +135,7 @@
     y="192"
     text-anchor="end"
     class="value"
-  >4</text>
+  >6</text>
 
   <!-- Repositories contributed to -->
 
@@ -156,7 +156,7 @@
     y="236"
     text-anchor="end"
     class="value"
-  >4</text>
+  >2</text>
 
   <!-- Stars -->
 
