@@ -1,8 +1,8 @@
 <svg
   xmlns="http://www.w3.org/2000/svg"
   width="520"
-  height="318"
-  viewBox="0 0 520 318"
+  height="234"
+  viewBox="0 0 520 234"
   role="img"
   aria-label="Languages"
 >
@@ -55,7 +55,7 @@
     x="1"
     y="1"
     width="518"
-    height="316"
+    height="232"
     rx="10"
     fill="#0d1117"
     stroke="#30363d"
@@ -96,7 +96,7 @@
             x="62"
             y="110"
             class="language"
-          >Vue</text>
+          >JavaScript</text>
 
           <rect
             x="175"
@@ -113,12 +113,12 @@
             width="0"
             height="16"
             rx="8"
-            fill="#ff4d4d"
+            fill="#a72b38"
           >
             <animate
               attributeName="width"
               from="0"
-              to="100.59"
+              to="197.27"
               dur="0.8s"
               begin="0.00s"
               fill="freeze"
@@ -132,7 +132,7 @@
             y="110"
             text-anchor="end"
             class="percentage"
-          >40.2%</text>
+          >78.9%</text>
 
         </g>
         
@@ -148,7 +148,7 @@
             x="62"
             y="152"
             class="language"
-          >JavaScript</text>
+          >CSS</text>
 
           <rect
             x="175"
@@ -165,12 +165,12 @@
             width="0"
             height="16"
             rx="8"
-            fill="#a72b38"
+            fill="#e34850"
           >
             <animate
               attributeName="width"
               from="0"
-              to="95.53"
+              to="31.40"
               dur="0.8s"
               begin="0.12s"
               fill="freeze"
@@ -184,7 +184,7 @@
             y="152"
             text-anchor="end"
             class="percentage"
-          >38.2%</text>
+          >12.6%</text>
 
         </g>
         
@@ -200,7 +200,7 @@
             x="62"
             y="194"
             class="language"
-          >TypeScript</text>
+          >HTML</text>
 
           <rect
             x="175"
@@ -217,12 +217,12 @@
             width="0"
             height="16"
             rx="8"
-            fill="#c44550"
+            fill="#c83c46"
           >
             <animate
               attributeName="width"
               from="0"
-              to="34.63"
+              to="21.32"
               dur="0.8s"
               begin="0.24s"
               fill="freeze"
@@ -236,111 +236,7 @@
             y="194"
             text-anchor="end"
             class="percentage"
-          >13.9%</text>
-
-        </g>
-        
-        <g class="language-row">
-
-          <text
-            x="28"
-            y="236"
-            class="position"
-          >04</text>
-
-          <text
-            x="62"
-            y="236"
-            class="language"
-          >CSS</text>
-
-          <rect
-            x="175"
-            y="222"
-            width="250"
-            height="16"
-            rx="8"
-            fill="#161b22"
-          />
-
-          <rect
-            x="175"
-            y="222"
-            width="0"
-            height="16"
-            rx="8"
-            fill="#aa303b"
-          >
-            <animate
-              attributeName="width"
-              from="0"
-              to="13.71"
-              dur="0.8s"
-              begin="0.36s"
-              fill="freeze"
-              calcMode="spline"
-              keySplines="0.16 1 0.3 1"
-            />
-          </rect>
-
-          <text
-            x="494"
-            y="236"
-            text-anchor="end"
-            class="percentage"
-          >5.5%</text>
-
-        </g>
-        
-        <g class="language-row">
-
-          <text
-            x="28"
-            y="278"
-            class="position"
-          >05</text>
-
-          <text
-            x="62"
-            y="278"
-            class="language"
-          >HTML</text>
-
-          <rect
-            x="175"
-            y="264"
-            width="250"
-            height="16"
-            rx="8"
-            fill="#161b22"
-          />
-
-          <rect
-            x="175"
-            y="264"
-            width="0"
-            height="16"
-            rx="8"
-            fill="#8d2631"
-          >
-            <animate
-              attributeName="width"
-              from="0"
-              to="5.55"
-              dur="0.8s"
-              begin="0.48s"
-              fill="freeze"
-              calcMode="spline"
-              keySplines="0.16 1 0.3 1"
-            />
-          </rect>
-
-          <text
-            x="494"
-            y="278"
-            text-anchor="end"
-            class="percentage"
-          >2.2%</text>
+          >8.5%</text>
 
         </g>
         
